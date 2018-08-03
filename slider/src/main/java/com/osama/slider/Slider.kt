@@ -37,6 +37,8 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
         private set
     private var motionEvent: Int = MotionEvent.ACTION_UP
     var onReady: () -> Unit = {}
+    var onPlay: () -> Unit = {}
+    var onStop: () -> Unit = {}
     lateinit var onItemChangeListener: (key: String, obj: Any) -> Unit
     private var items: HashMap<String, out Any> = HashMap()
 
@@ -148,8 +150,8 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
             scrollAnimator.setInterpolator { it }
             scrollAnimator.addListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationStart(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator?) = onStop()
+                override fun onAnimationStart(animation: Animator?) = onPlay()
                 override fun onAnimationEnd(animation: Animator?) = cb()
             })
             scrollAnimator.start()
@@ -165,6 +167,11 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
         startPlaying(speedFactor)
     }
 
+    /**
+     * Returns the state of the slider.
+     *
+     * @return false if the slider stop or true if it start .
+     */
     fun pauseSliding() {
         if (motionEvent != MotionEvent.ACTION_MOVE) {
             if (!scrollAnimator.isPaused and scrollAnimator.isRunning) {
