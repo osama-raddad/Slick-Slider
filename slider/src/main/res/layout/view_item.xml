@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="bottom"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="31dp"
+        android:layout_height="13dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="14dp"
+        android:gravity="center"
+        android:textColor="#FFFFFFFF"
+        android:textSize="11sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="#FF03A9F4" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="8dp"
+            android:layout_marginEnd="10dp"
+            android:background="#FF03A9F4" />
+
+        <View
+            android:layout_width="2dp"
+            android:layout_height="8dp"
+            android:layout_marginEnd="10dp"
+            android:background="#FF03A9F4" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="8dp"
+            android:layout_marginEnd="10dp"
+            android:background="#FF03A9F4" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="10dp"
+            android:background="#FF03A9F4" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="#FF03A9F4" />
+
+</LinearLayout>
