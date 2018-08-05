@@ -96,7 +96,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
         for (i in 0 until data.size step partSize) {
             item = inflater.inflate(R.layout.view_item, linearLayout, false)
             val label = item.findViewById<TextView>(R.id.label)
-            label.text = ((data[i.toString()].toString().toInt() / 4).toString())
+            label.text = data.keys.elementAt(i)
             item.post { itemWidth = item.width.toFloat() / partSize }
             linearLayout.addView(item)
         }
