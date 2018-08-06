@@ -42,7 +42,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
     lateinit var onItemChangeListener: (key: String, obj: Any?) -> Unit
     private var items: HashMap<String, out Any?> = HashMap()
 
-    fun setData(data: HashMap<String, out Any>) {
+    fun setData(data: HashMap<String, out Any?>) {
         overScrollMode = View.OVER_SCROLL_NEVER
         items = data
         addItemsToLayout(data)
