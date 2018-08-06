@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         slider.setData(data)
         slider.onReady = {
             slider.startSliding()
-            slider.onItemChangeListener = { s: String, any: Any -> time.text = s }
+            slider.onItemChangeListener = { s: String, any: Any? -> time.text = s }
             play.setOnClickListener { slider.pauseSliding() }
             forward.setOnClickListener { slider.forward() }
             backward.setOnClickListener { slider.backward() }
