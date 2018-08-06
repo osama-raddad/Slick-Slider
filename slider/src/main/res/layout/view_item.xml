@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="48dp"
     android:layout_height="wrap_content"
     android:gravity="bottom"
     android:orientation="vertical">
@@ -13,47 +14,137 @@
         android:layout_marginBottom="14dp"
         android:gravity="center"
         android:textColor="#FFFFFFFF"
-        android:textSize="11sp" />
+        android:textSize="11sp"
+        tools:ignore="SmallSp" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:baselineAligned="false"
         android:gravity="bottom"
         android:orientation="horizontal">
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="10dp"
-            android:layout_marginEnd="10dp"
-            android:background="#FF03A9F4" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="8dp"
-            android:layout_marginEnd="10dp"
-            android:background="#FF03A9F4" />
+        <FrameLayout
+            android:id="@+id/first_quarter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1">
 
-        <View
-            android:layout_width="2dp"
-            android:layout_height="8dp"
-            android:layout_marginEnd="10dp"
-            android:background="#FF03A9F4" />
+            <View
+                android:layout_width="1dp"
+                android:layout_height="10dp"
+                android:background="@color/blue"
+                android:tag="v1" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="8dp"
-            android:layout_marginEnd="10dp"
-            android:background="#FF03A9F4" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_gravity="bottom"
+                android:background="@color/blue"
+                android:tag="v2" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="10dp"
-            android:background="#FF03A9F4" />
+            <View
+                android:layout_width="0.5dp"
+                android:layout_height="8dp"
+                android:layout_gravity="end|bottom"
+                android:background="@color/blue"
+                android:tag="v3" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/second_quarter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1">
+
+            <View
+                android:layout_width="0.5dp"
+                android:layout_height="8dp"
+                android:layout_gravity="start|bottom"
+                android:background="@color/blue"
+                android:tag="v3" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_gravity="bottom"
+                android:background="@color/blue"
+                android:tag="v1" />
+
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="8dp"
+                android:layout_gravity="end"
+                android:background="@color/blue"
+                android:tag="v2" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/third_quarter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1">
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="8dp"
+                android:layout_gravity="start"
+                android:background="@color/blue"
+                android:tag="v3" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_gravity="bottom"
+                android:background="@color/blue"
+                android:tag="v1" />
+
+
+            <View
+                android:layout_width="0.5dp"
+                android:layout_height="8dp"
+                android:layout_gravity="end"
+                android:background="@color/blue"
+                android:tag="v2" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/forth_quarter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1">
+
+            <View
+                android:layout_width="0.5dp"
+                android:layout_height="8dp"
+                android:layout_gravity="start|bottom"
+                android:background="@color/blue"
+                android:tag="v3" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_gravity="bottom"
+                android:background="@color/blue"
+                android:tag="v1" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="10dp"
+                android:layout_gravity="end"
+                android:background="@color/blue"
+                android:tag="v2" />
+        </FrameLayout>
+
+
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:background="#FF03A9F4" />
 
 </LinearLayout>

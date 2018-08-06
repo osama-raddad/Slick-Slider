@@ -11,17 +11,26 @@ import android.widget.LinearLayout
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.res.Resources
+import android.service.autofill.Validators.and
 import android.widget.TextView
 import kotlin.math.roundToInt
 
 
 class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScrollView(context, attrs) {
+    var partSize: Int = 1
+    var startDisplacement: Int = 0
+    var endDisplacement: Int = 0
+    var speedFactor: Int = 1
+        private set
+    var onReady: () -> Unit = {}
+    var onPlay: () -> Unit = {}
+    var onStop: () -> Unit = {}
+
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val root: View = inflater.inflate(R.layout.view_slider, this)
     private lateinit var linearLayout: LinearLayout
     private var linearLayoutWidth: Float = 0f
-    var partSize: Int = 1
-    private var itemWidth: Float = 60f / partSize
+    private var itemWidth: Float = dpToPx(48f) / partSize
     private var currentPosition = 0
     private lateinit var scrollAnimator: ObjectAnimator
     private val playerSpeed: Float = 1200f
@@ -30,16 +39,14 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
     private var end: Int = 0
     private lateinit var item: View
     private var partsCount: Int = 16
+
     private val fastSpeed: Float = 50f
     private val delay: Long = 400
     private val displayWidth = Resources.getSystem().displayMetrics.widthPixels
-    var speedFactor: Int = 1
-        private set
+
     private var motionEvent: Int = MotionEvent.ACTION_UP
-    var onReady: () -> Unit = {}
-    var onPlay: () -> Unit = {}
-    var onStop: () -> Unit = {}
-    lateinit var onItemChangeListener: (key: String, obj: Any?) -> Unit
+
+    var onItemChangeListener: (key: String, obj: Any?) -> Unit = { _: String, _: Any? -> }
     private var items: HashMap<String, out Any?> = HashMap()
 
     fun setData(data: HashMap<String, out Any?>) {
@@ -53,41 +60,6 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
         }
     }
 
-    private fun calculateTheStartAndEndOfLayout(cb: () -> Unit) {
-        linearLayout.post {
-            linearLayoutWidth = linearLayout.width.toFloat()
-            startGrayWidth = root.findViewById<View>(R.id.grayArea1).width
-            start = startGrayWidth - (displayWidth / 2)
-            end = (start + linearLayoutWidth).toInt()
-            cb()
-        }
-    }
-
-    private fun addMotionListener() {
-        onMotionChange = {
-            motionEvent = it
-            if (::scrollAnimator.isInitialized) {
-                if (it == MotionEvent.ACTION_MOVE) scrollAnimator.pause()
-                if (it == MotionEvent.ACTION_UP) snapToClosestItem()
-            }
-        }
-    }
-
-    private fun addScrollingListener() {
-        onScrollChanged = {
-            currentPosition = it
-            val index = getViewIndex()
-            if (((index) >= 0) and ((index) < items.size))
-                if (::onItemChangeListener.isInitialized)
-                    onItemChangeListener(index.toString(), items.values.elementAt(index))
-            if (::item.isInitialized) itemWidth = item.width.toFloat() / partSize
-        }
-    }
-
-    private fun getViewIndex(): Int {
-        val index = ((displayWidth / 2) - startGrayWidth + currentPosition) / (itemWidth)
-        return index.roundToInt()
-    }
 
     @SuppressLint("SetTextI18n")
     private fun addItemsToLayout(data: HashMap<String, out Any>) {
@@ -96,28 +68,116 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
         for (i in 0 until data.size step partSize) {
             item = inflater.inflate(R.layout.view_item, linearLayout, false)
             val label = item.findViewById<TextView>(R.id.label)
+            if (i == 0) applyDisplacementStart(item)
+            if (data.size - i <= partSize) applyDisplacementEnd(item)
             label.text = data.keys.elementAt(i)
             item.post { itemWidth = item.width.toFloat() / partSize }
             linearLayout.addView(item)
         }
     }
 
+    private fun addScrollingListener() {
+        onScrollChanged = {
+            currentPosition = it
+            val index = getViewIndex()
+            if (((index) >= 0 + startDisplacement) and ((index) < items.size - endDisplacement + 1))
+                onItemChangeListener((index - startDisplacement).toString(), items.values.elementAt(index))
+            if (::item.isInitialized) itemWidth = item.width.toFloat() / partSize
+        }
+    }
+
+    private fun addMotionListener() {
+        onMotionChange = {
+            motionEvent = it
+            if (::scrollAnimator.isInitialized) {
+                if (it == MotionEvent.ACTION_MOVE) scrollAnimator.pause()
+                if (it == MotionEvent.ACTION_UP) {
+                    post { scrollTo(currentPosition, 0) }
+                    snapToClosestItem()
+                }
+            }
+        }
+    }
+
+    private fun calculateTheStartAndEndOfLayout(callback: () -> Unit) {
+        linearLayout.post {
+            linearLayoutWidth = linearLayout.width.toFloat()
+            startGrayWidth = root.findViewById<View>(R.id.grayArea1).width
+            start = (((startGrayWidth + ((itemWidth / partSize) * startDisplacement)) - (displayWidth / 2))).toInt()
+            end = ((start + linearLayoutWidth) - ((itemWidth / partSize) * endDisplacement) - ((itemWidth / partSize) * startDisplacement)).toInt()
+            callback()
+        }
+    }
+
+    private fun getViewIndex(): Int {
+        val index = ((displayWidth / 2) - startGrayWidth + currentPosition) / (itemWidth)
+        return index.roundToInt()
+    }
+
+    private fun applyDisplacementEnd(item: View) {
+        when (endDisplacement) {
+            1 -> {
+                setPartsColor(item.findViewById<View>(R.id.forth_quarter))
+            }
+            2 -> {
+                setPartsColor(item.findViewById<View>(R.id.forth_quarter))
+                setPartsColor(item.findViewById<View>(R.id.third_quarter))
+            }
+            3 -> {
+                setPartsColor(item.findViewById<View>(R.id.forth_quarter))
+                setPartsColor(item.findViewById<View>(R.id.third_quarter))
+                setPartsColor(item.findViewById<View>(R.id.second_quarter))
+            }
+        }
+    }
+
+
+    private fun applyDisplacementStart(item: View) {
+        when (startDisplacement) {
+            1 -> {
+                setPartsColor(item.findViewById<View>(R.id.first_quarter))
+            }
+            2 -> {
+                setPartsColor(item.findViewById<View>(R.id.first_quarter))
+                setPartsColor(item.findViewById<View>(R.id.second_quarter))
+            }
+            3 -> {
+                setPartsColor(item.findViewById<View>(R.id.first_quarter))
+                setPartsColor(item.findViewById<View>(R.id.second_quarter))
+                setPartsColor(item.findViewById<View>(R.id.third_quarter))
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun setPartsColor(quarter: View) {
+        quarter.findViewWithTag<View>("v1").setBackgroundColor(resources.getColor(R.color.gray))
+        quarter.findViewWithTag<View>("v2").setBackgroundColor(resources.getColor(R.color.gray))
+        quarter.findViewWithTag<View>("v3").setBackgroundColor(resources.getColor(R.color.gray))
+    }
+
     private fun startPlaying(factor: Int) {
 //        scroll to the end
         animatedScroll(end, Math.abs((playerSpeed * (partsCount / partSize)) * (currentPosition - end) / (end - start)) / factor) {
-            //          delay
-            handler.postDelayed({
-                //            back to start
-                post {
-                    smoothScrollTo(start, 0)
-                    //          delay
-                    handler.postDelayed({
-                        //                repeat
-                        startPlaying(factor)
-                    }, delay)
-                }
-            }, delay)
+            replay(factor)
         }
+    }
+
+    fun replay(factor: Int = speedFactor) {
+        if (::scrollAnimator.isInitialized)
+            scrollAnimator.pause()
+        //          delay
+        handler.postDelayed({
+            //            back to start
+            post {
+                smoothScrollTo(start, 0)
+                //          delay
+                handler.postDelayed({
+                    //                repeat
+                    startPlaying(factor)
+                }, delay)
+            }
+        }, delay)
     }
 
     private fun snapToClosestItem() {
@@ -138,7 +198,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
     }
 
     private fun snap() {
-        val x = (((currentPosition / itemWidth).roundToInt() * itemWidth) + dpToPx(5.2f))
+        val x = (((currentPosition / itemWidth).roundToInt() * itemWidth))
         post { smoothScrollTo(x.toInt(), 0) }
     }
 
@@ -161,7 +221,6 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
     private fun dpToPx(float: Float): Float {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, float, resources.displayMetrics)
     }
-
 
     fun startSliding() {
         startPlaying(speedFactor)
@@ -189,7 +248,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
                 snapToClosestItem()
                 if ((currentPosition > start) and (currentPosition < end))
                     post {
-                        val x = (((currentPosition / itemWidth).roundToInt() * itemWidth) + dpToPx(5.2f))
+                        val x = (((currentPosition / itemWidth).roundToInt() * itemWidth))
                         smoothScrollTo((x + itemWidth).toInt(), 0)
                         snapToClosestItem()
                     }
@@ -205,7 +264,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
                 snapToClosestItem()
                 if ((currentPosition > start) and (currentPosition < end))
                     post {
-                        val x = (((currentPosition / itemWidth).roundToInt() * itemWidth) + dpToPx(5.2f))
+                        val x = (((currentPosition / itemWidth).roundToInt() * itemWidth))
                         smoothScrollTo((x - itemWidth).toInt(), 0)
                         snapToClosestItem()
                     }
