@@ -11,7 +11,6 @@ import android.widget.LinearLayout
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.res.Resources
-import android.service.autofill.Validators.and
 import android.widget.TextView
 import kotlin.math.roundToInt
 
@@ -46,10 +45,11 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
 
     private var motionEvent: Int = MotionEvent.ACTION_UP
 
-    var onItemChangeListener: (key: String, obj: Any?) -> Unit = { _: String, _: Any? -> }
-    private var items: HashMap<String, out Any?> = HashMap()
+    var onItemChangeListener: (item: Pair<*, *>) -> Unit = { }
+    var titleFormatter: ((key: String) -> String)? = null
+    private var items: List<Pair<*, *>> = ArrayList()
 
-    fun setData(data: HashMap<String, out Any?>) {
+    fun setData(data: List<Pair<*, *>>) {
         overScrollMode = View.OVER_SCROLL_NEVER
         items = data
         addItemsToLayout(data)
@@ -62,15 +62,20 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
 
 
     @SuppressLint("SetTextI18n")
-    private fun addItemsToLayout(data: HashMap<String, out Any>) {
+    private fun addItemsToLayout(data: List<Pair<*, *>>) {
         linearLayout = root.findViewById(R.id.ll)
 
         for (i in 0 until data.size step partSize) {
             item = inflater.inflate(R.layout.view_item, linearLayout, false)
             val label = item.findViewById<TextView>(R.id.label)
+
             if (i == 0) applyDisplacementStart(item)
             if (data.size - i <= partSize) applyDisplacementEnd(item)
-            label.text = data.keys.elementAt(i)
+
+            if (titleFormatter == null) {
+                label.text = if (data[i].first is String) data[i].first.toString() else ""
+            } else label.text = titleFormatter?.invoke(data[i].first.toString())
+
             item.post { itemWidth = item.width.toFloat() / partSize }
             linearLayout.addView(item)
         }
@@ -81,7 +86,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
             currentPosition = it
             val index = getViewIndex()
             if (((index) >= 0 + startDisplacement) and ((index) < items.size - endDisplacement))
-                onItemChangeListener((index - startDisplacement).toString(), items.values.elementAt(index))
+                onItemChangeListener((index - startDisplacement).toString() to items[index].second)
             if (::item.isInitialized) itemWidth = item.width.toFloat() / partSize
         }
     }
