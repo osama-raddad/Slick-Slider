@@ -46,10 +46,10 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
     private var motionEvent: Int = MotionEvent.ACTION_UP
 
     var onItemChangeListener: (item: Pair<*, *>) -> Unit = { }
-    var titleFormatter: ((key: String) -> String)? = null
-    private var items: List<Pair<*, *>> = ArrayList()
+    var titleFormatter: ((key: Any?) -> String)? = null
+    private var items: MutableMap<*, *> = mutableMapOf<Any, Any>()
 
-    fun setData(data: List<Pair<*, *>>) {
+    fun <T, K> setData(data: MutableMap<T, K>) {
         overScrollMode = View.OVER_SCROLL_NEVER
         items = data
         addItemsToLayout(data)
@@ -62,7 +62,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
 
 
     @SuppressLint("SetTextI18n")
-    private fun addItemsToLayout(data: List<Pair<*, *>>) {
+    private fun <T, K> addItemsToLayout(data: MutableMap<T, K>) {
         linearLayout = root.findViewById(R.id.ll)
 
         for (i in 0 until data.size step partSize) {
@@ -73,8 +73,8 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
             if (data.size - i <= partSize) applyDisplacementEnd(item)
 
             if (titleFormatter == null) {
-                label.text = if (data[i].first is String) data[i].first.toString() else ""
-            } else label.text = titleFormatter?.invoke(data[i].first.toString())
+                label.text = if (data.keys.elementAt(i) is String) data.keys.elementAt(i).toString() else ""
+            } else label.text = titleFormatter?.invoke(data.keys.elementAt(i))
 
             item.post { itemWidth = item.width.toFloat() / partSize }
             linearLayout.addView(item)
@@ -86,7 +86,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
             currentPosition = it
             val index = getViewIndex()
             if (((index) >= 0 + startDisplacement) and ((index) < items.size - endDisplacement))
-                onItemChangeListener((index - startDisplacement).toString() to items[index].second)
+                onItemChangeListener((index - startDisplacement).toString() to items.keys.elementAt(index))
             if (::item.isInitialized) itemWidth = item.width.toFloat() / partSize
         }
     }
