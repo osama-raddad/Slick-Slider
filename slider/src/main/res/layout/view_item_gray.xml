@@ -13,7 +13,7 @@
         android:layout_gravity="center"
         android:layout_marginBottom="14dp"
         android:gravity="center"
-        android:textColor="@color/white"
+        android:textColor="#FFFFFFFF"
         android:textSize="11sp"
         tools:ignore="SmallSp" />
 
@@ -26,6 +26,7 @@
 
 
         <FrameLayout
+            android:id="@+id/first_quarter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -34,77 +35,112 @@
             <View
                 android:layout_width="1dp"
                 android:layout_height="10dp"
-                android:background="@color/gray" />
+                android:background="@color/gray"
+                android:tag="v1" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_gravity="bottom"
-                android:background="@color/gray" />
+                android:background="@color/gray"
+                android:tag="v2" />
 
             <View
-                android:layout_width="1dp"
+                android:layout_width="0.5dp"
                 android:layout_height="8dp"
                 android:layout_gravity="end|bottom"
-                android:background="@color/gray" />
+                android:background="@color/gray"
+                android:tag="v3" />
+
         </FrameLayout>
 
         <FrameLayout
+            android:id="@+id/second_quarter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="1">
 
             <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_gravity="bottom"
-                android:background="@color/gray" />
-
-
-            <View
-                android:layout_width="2dp"
+                android:layout_width="0.5dp"
                 android:layout_height="8dp"
-                android:layout_gravity="end"
-                android:background="@color/gray" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1">
+                android:layout_gravity="start|bottom"
+                android:background="@color/gray"
+                android:tag="v3" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_gravity="bottom"
-                android:background="@color/gray" />
+                android:background="@color/gray"
+                android:tag="v1" />
 
 
             <View
                 android:layout_width="1dp"
                 android:layout_height="8dp"
                 android:layout_gravity="end"
-                android:background="@color/gray" />
+                android:background="@color/gray"
+                android:tag="v2" />
         </FrameLayout>
 
         <FrameLayout
+            android:id="@+id/third_quarter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1">
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="8dp"
+                android:layout_gravity="start"
+                android:background="@color/gray"
+                android:tag="v3" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_gravity="bottom"
-                android:background="@color/gray" />
+                android:background="@color/gray"
+                android:tag="v1" />
+
+
+            <View
+                android:layout_width="0.5dp"
+                android:layout_height="8dp"
+                android:layout_gravity="end"
+                android:background="@color/gray"
+                android:tag="v2" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/forth_quarter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1">
+
+            <View
+                android:layout_width="0.5dp"
+                android:layout_height="8dp"
+                android:layout_gravity="start|bottom"
+                android:background="@color/gray"
+                android:tag="v3" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_gravity="bottom"
+                android:background="@color/gray"
+                android:tag="v1" />
 
             <View
                 android:layout_width="1dp"
                 android:layout_height="10dp"
                 android:layout_gravity="end"
-                android:background="@color/gray" />
+                android:background="@color/gray"
+                android:tag="v2" />
         </FrameLayout>
 
 
