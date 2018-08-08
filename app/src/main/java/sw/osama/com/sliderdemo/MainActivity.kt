@@ -10,14 +10,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        var data: MutableMap<String,Any> = HashMap()
-        val a:MutableMap<String, Any>
-        for (i in 0 until 16) data[i.toString()] = i.toString()
-        a= data.toList().sortedBy { (key, _) -> key.toInt() }.toMap() as MutableMap<String, Any>
-        data =a
+        var data: MutableMap<String, Any> = HashMap()
+        val a: MutableMap<String, Any>
+        for (i in 0 until 14) data[i.toString()] = i.toString()
+        a = data.toList().sortedBy { (key, _) -> key.toInt() }.toMap() as MutableMap<String, Any>
+        data = a
         slider.partSize = 4
-        slider.startDisplacement = 1
-        slider.endDisplacement = 3
+        slider.displacement = 1
+//        slider.endDisplacement = 3
         slider.titleFormatter = { "$it:00" }
         slider.setData(data)
         slider.onReady = {

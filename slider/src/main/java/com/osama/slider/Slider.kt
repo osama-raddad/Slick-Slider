@@ -1,26 +1,29 @@
 package com.osama.slider
 
 import android.animation.Animator
+import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
-import android.animation.ObjectAnimator
-import android.annotation.SuppressLint
-import android.content.res.Resources
 import android.widget.TextView
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 
 class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScrollView(context, attrs) {
     var partSize: Int = 1
-    var startDisplacement: Int = 0
-    var endDisplacement: Int = 0
+    var displacement: Int = 0
+//    var endDisplacement: Int = 0
+
     var speedFactor: Int = 1
         private set
+
     var onReady: () -> Unit = {}
     var onPlay: () -> Unit = {}
     var onStop: () -> Unit = {}
@@ -64,8 +67,13 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
     @SuppressLint("SetTextI18n")
     private fun <T, K> addItemsToLayout(data: MutableMap<T, K>) {
         linearLayout = root.findViewById(R.id.ll)
+        val size = if (
+                (((data.size + displacement - 1) / partSize.toFloat())
+                        - (data.size + displacement - 1) / partSize)
+                > 0f)
+            data.size - 1 + partSize else data.size - 1
 
-        for (i in 0 until data.size step partSize) {
+        for (i in 0 until size step partSize) {
             item = inflater.inflate(R.layout.view_item, linearLayout, false)
             val label = item.findViewById<TextView>(R.id.label)
 
@@ -85,8 +93,8 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
         onScrollChanged = {
             currentPosition = it
             val index = getViewIndex()
-            if (((index) >= 0 + startDisplacement) and ((index) < items.size - endDisplacement))
-                onItemChangeListener((index - startDisplacement).toString() to items.values.elementAt(index))
+            if (((index - displacement) >= 0) and ((index - displacement) < items.size))
+                onItemChangeListener((index - displacement).toString() to items.values.elementAt(index - displacement))
             if (::item.isInitialized) itemWidth = item.width.toFloat() / partSize
         }
     }
@@ -108,8 +116,8 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
         linearLayout.post {
             linearLayoutWidth = linearLayout.width.toFloat()
             startGrayWidth = root.findViewById<View>(R.id.grayArea1).width
-            start = (((startGrayWidth + ((itemWidth / partSize) * startDisplacement)) - (displayWidth / 2))).toInt()
-            end = ((start + linearLayoutWidth) - ((itemWidth / partSize) * endDisplacement) - ((itemWidth / partSize) * startDisplacement)).toInt()
+            start = ((((startGrayWidth) - (displayWidth / 2))) + ((itemWidth) * displacement)).toInt()
+            end = (((((startGrayWidth) - (displayWidth / 2))) + linearLayoutWidth) - ((itemWidth) * ((displacement - partSize).absoluteValue))).toInt()
             callback()
         }
     }
@@ -120,7 +128,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
     }
 
     private fun applyDisplacementEnd(item: View) {
-        when (endDisplacement) {
+        when ((displacement - partSize).absoluteValue) {
             1 -> {
                 setPartsColor(item.findViewById<View>(R.id.forth_quarter))
             }
@@ -138,7 +146,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
 
 
     private fun applyDisplacementStart(item: View) {
-        when (startDisplacement) {
+        when (displacement) {
             1 -> {
                 setPartsColor(item.findViewById<View>(R.id.first_quarter))
             }
