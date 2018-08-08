@@ -86,7 +86,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
             currentPosition = it
             val index = getViewIndex()
             if (((index) >= 0 + startDisplacement) and ((index) < items.size - endDisplacement))
-                onItemChangeListener((index - startDisplacement).toString() to items.keys.elementAt(index))
+                onItemChangeListener((index - startDisplacement).toString() to items.values.elementAt(index))
             if (::item.isInitialized) itemWidth = item.width.toFloat() / partSize
         }
     }
