@@ -12,11 +12,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         var data: MutableMap<String, Any> = HashMap()
         val a: MutableMap<String, Any>
-        for (i in 0 until 14) data[i.toString()] = i.toString()
+        for (i in 0 until 13) data[i.toString()] = i.toString()
         a = data.toList().sortedBy { (key, _) -> key.toInt() }.toMap() as MutableMap<String, Any>
         data = a
         slider.partSize = 4
-        slider.displacement = 1
+        slider.displacement = 0
 //        slider.endDisplacement = 3
         slider.titleFormatter = { "$it:00" }
         slider.setData(data)

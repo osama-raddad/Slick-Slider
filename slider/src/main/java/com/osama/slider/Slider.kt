@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
+import android.os.VibrationEffect
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -14,6 +15,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
+import android.os.Vibrator
+
+
 
 
 class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScrollView(context, attrs) {
@@ -77,9 +81,10 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
             item = inflater.inflate(R.layout.view_item, linearLayout, false)
             val label = item.findViewById<TextView>(R.id.label)
 
-            if (i == 0) applyDisplacementStart(item)
-            if (data.size - i <= partSize) applyDisplacementEnd(item)
-
+            if(displacement>0) {
+                if (i == 0) applyDisplacementStart(item)
+                if (data.size - i <= partSize) applyDisplacementEnd(item)
+            }
             if (titleFormatter == null) {
                 label.text = if (data.keys.elementAt(i) is String) data.keys.elementAt(i).toString() else ""
             } else label.text = titleFormatter?.invoke(data.keys.elementAt(i))
@@ -93,8 +98,10 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
         onScrollChanged = {
             currentPosition = it
             val index = getViewIndex()
-            if (((index - displacement) >= 0) and ((index - displacement) < items.size))
+            if (((index - displacement) >= 0) and ((index - displacement) < items.size)) {
                 onItemChangeListener((index - displacement).toString() to items.values.elementAt(index - displacement))
+                if(scrollAnimator.isPaused)(context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(100)
+            }
             if (::item.isInitialized) itemWidth = item.width.toFloat() / partSize
         }
     }
