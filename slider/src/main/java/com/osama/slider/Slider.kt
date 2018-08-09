@@ -120,7 +120,10 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         onMotionChange = {
             motionEvent = it
             if (::scrollAnimator.isInitialized) {
-                if (it == MotionEvent.ACTION_MOVE) scrollAnimator.pause()
+                if (it == MotionEvent.ACTION_MOVE) {
+                    scrollAnimator.pause()
+                    onStop()
+                }
                 if (it == MotionEvent.ACTION_UP) {
                     post { scrollTo(currentPosition, 0) }
                     snapToClosestItem()
@@ -187,6 +190,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun startPlaying(factor: Int) {
+        onPlay()
 //        scroll to the end
         animatedScroll(end, Math.abs((playerSpeed * (partsCount / partSize)) * (currentPosition - end) / (end - start)) / factor) {
             replay(factor)
@@ -240,8 +244,8 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
             scrollAnimator.setInterpolator { it }
             scrollAnimator.addListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
-                override fun onAnimationCancel(animation: Animator?) = onStop()
-                override fun onAnimationStart(animation: Animator?) = onPlay()
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) = cb()
             })
             scrollAnimator.start()
