@@ -91,7 +91,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
         }
     }
 
-    private var oldIndex: Int = 0
+    private var oldIndex: Int = -1
     @Suppress("DEPRECATION")
     private fun addScrollingListener() {
         onScrollChanged = {
