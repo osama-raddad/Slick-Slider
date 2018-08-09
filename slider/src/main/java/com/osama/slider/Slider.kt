@@ -58,6 +58,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
     private var items: MutableMap<*, *> = mutableMapOf<Any, Any>()
 
     fun <T, K> setData(data: MutableMap<T, K>) {
+        if (::scrollAnimator.isInitialized) scrollAnimator.cancel()
         overScrollMode = View.OVER_SCROLL_NEVER
         items = data
         addItemsToLayout(data)
@@ -72,6 +73,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
     @SuppressLint("SetTextI18n")
     private fun <T, K> addItemsToLayout(data: MutableMap<T, K>) {
         linearLayout = root.findViewById(R.id.ll)
+        linearLayout.removeAllViews()
         val size = if (
                 (((data.size + displacement - 1) / partSize.toFloat())
                         - (data.size + displacement - 1) / partSize)
