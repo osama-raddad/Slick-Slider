@@ -19,7 +19,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 
-class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScrollView(context, attrs) {
+class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     var partSize: Int = 1
     var displacement: Int = 0
     var vibrate: Boolean = true

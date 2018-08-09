@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.HorizontalScrollView
 
-open class ObservableHorizontalScrollView(context: Context, attrs: AttributeSet) : HorizontalScrollView(context, attrs) {
+open class ObservableHorizontalScrollView(context: Context) : HorizontalScrollView(context) {
     var onScrollChanged: ((scrollX: Int) -> Unit)? = null
     var onMotionChange: ((motionEvent: Int) -> Unit)? = null
 
