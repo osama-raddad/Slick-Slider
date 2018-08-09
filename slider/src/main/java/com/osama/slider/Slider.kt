@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.osama.slider
 
 import android.animation.Animator
@@ -20,7 +22,8 @@ import kotlin.math.roundToInt
 class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScrollView(context, attrs) {
     var partSize: Int = 1
     var displacement: Int = 0
-//    var endDisplacement: Int = 0
+    var vibrate: Boolean = true
+    var vibrationLength: Long = 15
 
     var speedFactor: Int = 1
         private set
@@ -42,6 +45,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
     private var end: Int = 0
     private lateinit var item: View
     private var partsCount: Int = 16
+    private var oldIndex: Int = -1
 
     private val fastSpeed: Float = 50f
     private val delay: Long = 400
@@ -91,8 +95,6 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
         }
     }
 
-    private var oldIndex: Int = -1
-    @Suppress("DEPRECATION")
     private fun addScrollingListener() {
         onScrollChanged = {
             currentPosition = it
@@ -101,7 +103,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
                 if (index != oldIndex) {
                     oldIndex = index
                     onItemChangeListener((index - displacement).toString() to items.values.elementAt(index - displacement))
-                    if (motionEvent == MotionEvent.ACTION_MOVE) (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(15)
+                    if (motionEvent == MotionEvent.ACTION_MOVE && vibrate) (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibrationLength)
                 }
             }
             if (::item.isInitialized) itemWidth = item.width.toFloat() / partSize
@@ -273,6 +275,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
                         val x = (((currentPosition / itemWidth).roundToInt() * itemWidth))
                         smoothScrollTo((x + itemWidth).toInt(), 0)
                         snapToClosestItem()
+                        if (vibrate) (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibrationLength)
                     }
 
             }
@@ -289,6 +292,7 @@ class Slider(context: Context, attrs: AttributeSet) : ObservableHorizontalScroll
                         val x = (((currentPosition / itemWidth).roundToInt() * itemWidth))
                         smoothScrollTo((x - itemWidth).toInt(), 0)
                         snapToClosestItem()
+                        if (vibrate) (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibrationLength)
                     }
             }
         }
