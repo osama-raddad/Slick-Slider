@@ -69,6 +69,10 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         }
     }
 
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        if (::scrollAnimator.isInitialized) scrollAnimator.cancel()
+    }
 
     @SuppressLint("SetTextI18n")
     private fun <T, K> addItemsToLayout(data: MutableMap<T, K>) {
