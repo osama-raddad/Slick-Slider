@@ -39,7 +39,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private var itemWidth: Float = dpToPx(48f) / partSize
     private var currentPosition = 0
     private lateinit var scrollAnimator: ObjectAnimator
-    private val playerSpeed: Float = 1200f
+    private val playerSpeed: Float = 1000f
     private var start: Int = 0
     private var startGrayWidth: Int = 0
     private var end: Int = 0
