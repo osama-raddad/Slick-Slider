@@ -192,7 +192,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private fun startPlaying(factor: Int) {
         onPlay()
 //        scroll to the end
-        animatedScroll(end, Math.abs((playerSpeed * (partsCount / partSize)) * (currentPosition - end) / (end - start)) / factor) {
+        animatedScroll(end, Math.abs((playerSpeed * (partsCount)) * (currentPosition - end) / (end - start)) / factor) {
             replay(factor)
         }
     }
