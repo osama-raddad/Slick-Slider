@@ -39,7 +39,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private var itemWidth: Float = dpToPx(48f) / partSize
     private var currentPosition = 0
     private lateinit var scrollAnimator: ObjectAnimator
-    private val playerSpeed: Float = 1000f
+    private val playerSpeed: Float = 1600f
     private var start: Int = 0
     private var startGrayWidth: Int = 0
     private var end: Int = 0
@@ -192,7 +192,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private fun startPlaying(factor: Int) {
         onPlay()
 //        scroll to the end
-        animatedScroll(end, Math.abs((playerSpeed * (partsCount)) * (currentPosition - end) / (end - start)) / factor) {
+        animatedScroll(end, Math.abs((playerSpeed * (partsCount / partSize)) * (currentPosition - end) / (end - start)) / factor) {
             replay(factor)
         }
     }
