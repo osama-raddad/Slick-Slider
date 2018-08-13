@@ -18,14 +18,13 @@
             android:textSize="42sp" />
     </FrameLayout>
 
-    <com.osama.slider.Slider
-        android:id="@+id/slider"
+    <FrameLayout
+        android:id="@+id/sliderFrameLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:scrollbars="none"
-        tools:context=".MainActivity" />
+        android:scrollbars="none" />
 
     <View
         android:layout_width="4dp"

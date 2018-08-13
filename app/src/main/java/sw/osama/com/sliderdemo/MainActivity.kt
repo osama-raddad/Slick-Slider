@@ -2,6 +2,7 @@ package sw.osama.com.sliderdemo
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.osama.slider.Slider
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -12,12 +13,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         var data: MutableMap<String, Any> = HashMap()
         val a: MutableMap<String, Any>
-        for (i in 0 until 13) data[i.toString()] = i.toString()
+        for (i in 0 until 16) data[i.toString()] = i.toString()
         a = data.toList().sortedBy { (key, _) -> key.toInt() }.toMap() as MutableMap<String, Any>
         data = a
+        sliderFrameLayout.removeAllViews()
+        val slider = Slider(this)
+        slider.isVerticalScrollBarEnabled = false
+        slider.isHorizontalScrollBarEnabled = false
         slider.partSize = 4
         slider.displacement = 0
-//        slider.endDisplacement = 3
         slider.titleFormatter = { "$it:00" }
         slider.setData(data)
         slider.onReady = {
@@ -29,5 +33,6 @@ class MainActivity : AppCompatActivity() {
             speed_up.setOnClickListener { slider.speedFactor(slider.speedFactor + 1) }
             speed_down.setOnClickListener { slider.speedFactor(if (slider.speedFactor - 1 <= 0) 1 else slider.speedFactor - 1) }
         }
+        sliderFrameLayout.addView(slider)
     }
 }

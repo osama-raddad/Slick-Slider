@@ -6,7 +6,11 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Context.VIBRATOR_SERVICE
 import android.content.res.Resources
+import android.os.AsyncTask
+import android.os.Build
+import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -78,10 +82,9 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private fun <T, K> addItemsToLayout(data: MutableMap<T, K>) {
         linearLayout = root.findViewById(R.id.ll)
         linearLayout.removeAllViews()
-        val size = if (
+        val size = if ((displacement > 0) &&
                 (((data.size + displacement - 1) / partSize.toFloat())
-                        - (data.size + displacement - 1) / partSize)
-                > 0f)
+                        - (data.size + displacement - 1) / partSize) > 0f)
             data.size - 1 + partSize else data.size - 1
 
         for (i in 0 until size step partSize) {
@@ -109,11 +112,22 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                 if (index != oldIndex) {
                     oldIndex = index
                     onItemChangeListener((index - displacement).toString() to items.values.elementAt(index - displacement))
-                    if (motionEvent == MotionEvent.ACTION_MOVE && vibrate) (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibrationLength)
+                    vibrate()
                 }
             }
             if (::item.isInitialized) itemWidth = item.width.toFloat() / partSize
         }
+    }
+
+    private fun vibrate() {
+        if (motionEvent == MotionEvent.ACTION_MOVE && vibrate)
+            AsyncTask.execute {
+                if (Build.VERSION.SDK_INT >= 26)
+                    (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(VibrationEffect.createOneShot(vibrationLength, VibrationEffect.DEFAULT_AMPLITUDE))
+                else
+                    (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibrationLength)
+
+            }
     }
 
     private fun addMotionListener() {
@@ -144,7 +158,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
 
     private fun getViewIndex(): Int {
         val index = ((displayWidth / 2) - startGrayWidth + currentPosition) / (itemWidth)
-        return index.roundToInt()
+        return index.toInt()
     }
 
     private fun applyDisplacementEnd(item: View) {
@@ -285,7 +299,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                         val x = (((currentPosition / itemWidth).roundToInt() * itemWidth))
                         smoothScrollTo((x + itemWidth).toInt(), 0)
                         snapToClosestItem()
-                        if (vibrate) (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibrationLength)
+                        vibrate()
                     }
 
             }
@@ -302,7 +316,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                         val x = (((currentPosition / itemWidth).roundToInt() * itemWidth))
                         smoothScrollTo((x - itemWidth).toInt(), 0)
                         snapToClosestItem()
-                        if (vibrate) (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibrationLength)
+                        vibrate()
                     }
             }
         }
