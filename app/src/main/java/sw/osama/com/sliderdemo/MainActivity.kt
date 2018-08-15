@@ -21,7 +21,6 @@ class MainActivity : AppCompatActivity() {
         slider.isVerticalScrollBarEnabled = false
         slider.isHorizontalScrollBarEnabled = false
         slider.partSize = 4
-        slider.displacement = 0
         slider.titleFormatter = { "$it:00" }
         slider.setData(data)
         slider.onReady = {

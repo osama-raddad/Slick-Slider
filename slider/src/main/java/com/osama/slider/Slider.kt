@@ -6,13 +6,11 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Context.VIBRATOR_SERVICE
 import android.content.res.Resources
 import android.os.AsyncTask
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -111,7 +109,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
             if (((index - displacement) >= 0) and ((index - displacement) < items.size)) {
                 if (index != oldIndex) {
                     oldIndex = index
-                    onItemChangeListener((index - displacement).toString() to items.values.elementAt(index - displacement))
+                    AsyncTask.execute { onItemChangeListener((index - displacement).toString() to items.values.elementAt(index - displacement)) }
                     vibrate()
                 }
             }
@@ -246,7 +244,10 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun snap() {
-        val x = (((currentPosition / itemWidth).roundToInt() * itemWidth))
+        //        ((displayWidth / 2) - startGrayWidth + currentPosition)
+
+        val x = if (partSize == 1) ((currentPosition / itemWidth).roundToInt() * itemWidth) + (itemWidth / 4)
+        else (currentPosition / itemWidth).roundToInt() * itemWidth
         post { smoothScrollTo(x.toInt(), 0) }
     }
 
