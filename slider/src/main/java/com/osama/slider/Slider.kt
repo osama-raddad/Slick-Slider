@@ -52,7 +52,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private val fastSpeed: Float = 50f
     private val delay: Long = 400
     private val displayWidth = Resources.getSystem().displayMetrics.widthPixels
-
+    private var isRtl = false
     private var motionEvent: Int = MotionEvent.ACTION_UP
 
     var onItemChangeListener: (item: Pair<*, *>) -> Unit = { }
@@ -63,6 +63,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         if (::scrollAnimator.isInitialized) scrollAnimator.cancel()
         overScrollMode = View.OVER_SCROLL_NEVER
         items = data
+        isRtl = resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
         addItemsToLayout(data)
         addScrollingListener()
         addMotionListener()
@@ -79,28 +80,34 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
 
     @SuppressLint("SetTextI18n")
     private fun <T, K> addItemsToLayout(data: MutableMap<T, K>) {
+        if (isRtl) {
+            scaleX = -1f
+        }
         linearLayout = root.findViewById(R.id.ll)
         linearLayout.removeAllViews()
         val size = if ((displacement > 0) &&
                 (((data.size + displacement - 1) / partSize.toFloat())
                         - (data.size + displacement - 1) / partSize) > 0f)
             data.size - 1 + partSize else data.size - 1
+        if (!isRtl) for (i in 0 until size step partSize) createViews(i, data)
+        else for (i in size downTo 0 step partSize) createViews(i, data)
+    }
 
-        for (i in 0 until size step partSize) {
-            item = inflater.inflate(R.layout.view_item, linearLayout, false)
-            val label = item.findViewById<TextView>(R.id.label)
+    private fun <T, K> createViews(i: Int, data: MutableMap<T, K>) {
+        item = inflater.inflate(R.layout.view_item, linearLayout, false)
+        val label = item.findViewById<TextView>(R.id.label)
 
-            if (displacement > 0) {
-                if (i == 0) applyDisplacementStart(item)
-                if (data.size - i <= partSize) applyDisplacementEnd(item)
-            }
-            if (titleFormatter == null) {
-                label.text = if (data.keys.elementAt(i) is String) data.keys.elementAt(i).toString() else ""
-            } else label.text = titleFormatter?.invoke(data.keys.elementAt(i))
-
-            item.post { itemWidth = item.width.toFloat() / partSize }
-            linearLayout.addView(item)
+        if (displacement > 0) {
+            if (i == 0) applyDisplacementStart(item)
+            if (data.size - i <= partSize) applyDisplacementEnd(item)
         }
+        if (isRtl) label.scaleX = -1f
+        if (titleFormatter == null) {
+            label.text = if (data.keys.elementAt(i) is String) data.keys.elementAt(i).toString() else ""
+        } else label.text = titleFormatter?.invoke(data.keys.elementAt(i))
+
+        item.post { itemWidth = item.width.toFloat() / partSize }
+        linearLayout.addView(item)
     }
 
     private fun addScrollingListener() {
