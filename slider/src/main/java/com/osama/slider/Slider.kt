@@ -67,6 +67,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         addScrollingListener()
         addMotionListener()
         calculateTheStartAndEndOfLayout {
+            onPlay()
             scrollToStartOfSlider { onReady() }
         }
     }
@@ -252,6 +253,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun animatedScroll(position: Int, speed: Float, cb: () -> Unit = {}) {
+        onPlay()
         post {
             if (::scrollAnimator.isInitialized) scrollAnimator.pause()
             scrollAnimator = ObjectAnimator.ofInt(this, "scrollX", position)
@@ -272,6 +274,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     fun startSliding() {
+        onPlay()
         startPlaying(speedFactor)
     }
 
@@ -281,6 +284,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
      * @return false if the slider stop or true if it start .
      */
     fun pauseSliding() {
+        onStop()
         if (motionEvent != MotionEvent.ACTION_MOVE) {
             if (!scrollAnimator.isPaused and scrollAnimator.isRunning) {
                 scrollAnimator.pause()
@@ -292,6 +296,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
 
     fun forward() {
         if (motionEvent != MotionEvent.ACTION_MOVE) {
+            onStop()
             if (!scrollAnimator.isPaused) scrollAnimator.pause()
             post {
                 snapToClosestItem()
@@ -309,6 +314,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
 
     fun backward() {
         if (motionEvent != MotionEvent.ACTION_MOVE) {
+            onStop()
             if (!scrollAnimator.isPaused) scrollAnimator.pause()
             post {
                 snapToClosestItem()

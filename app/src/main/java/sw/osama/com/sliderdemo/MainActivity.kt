@@ -20,12 +20,15 @@ class MainActivity : AppCompatActivity() {
         val slider = Slider(this)
         slider.isVerticalScrollBarEnabled = false
         slider.isHorizontalScrollBarEnabled = false
-        slider.partSize = 4
+        slider.partSize = 1
         slider.titleFormatter = { "$it:00" }
         slider.setData(data)
+        slider.onPlay = { play.setImageResource(R.drawable.ic_pause_circle_filled_black_24dp) }
+        slider.onStop = { play.setImageResource(R.drawable.ic_play_circle_filled_black_24dp) }
         slider.onReady = {
             slider.startSliding()
-            slider.onItemChangeListener = { time.text = it.second as CharSequence? }
+            slider.onItemChangeListener = { runOnUiThread { time.text = it.second as CharSequence? } }
+
             play.setOnClickListener { slider.pauseSliding() }
             forward.setOnClickListener { slider.forward() }
             backward.setOnClickListener { slider.backward() }
