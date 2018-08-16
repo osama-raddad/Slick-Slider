@@ -68,7 +68,6 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         addScrollingListener()
         addMotionListener()
         calculateTheStartAndEndOfLayout {
-            onPlay()
             scrollToStartOfSlider { onReady() }
         }
     }
@@ -210,7 +209,6 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun startPlaying(factor: Int) {
-        onPlay()
 //        scroll to the end
         animatedScroll(end, Math.abs((playerSpeed * (partsCount / partSize)) * (currentPosition - end) / (end - start)) / factor) {
             replay(factor)
@@ -260,7 +258,6 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun animatedScroll(position: Int, speed: Float, cb: () -> Unit = {}) {
-        onPlay()
         post {
             if (::scrollAnimator.isInitialized) scrollAnimator.pause()
             scrollAnimator = ObjectAnimator.ofInt(this, "scrollX", position)
