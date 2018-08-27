@@ -11,6 +11,8 @@ import android.os.AsyncTask
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.service.autofill.Validators.and
+import android.text.method.Touch.scrollTo
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -38,8 +40,8 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private val root: View = inflater.inflate(R.layout.view_slider, this)
     private lateinit var linearLayout: LinearLayout
     private var linearLayoutWidth: Float = 0f
-    private var itemWidth: Float = dpToPx(48f) / partSize
-    private var currentPosition = 0
+    private var itemWidth: Float = 0f
+    private var currentPosition = 0f
     private lateinit var scrollAnimator: ObjectAnimator
     private val playerSpeed: Float = 1600f
     private var start: Int = 0
@@ -104,23 +106,24 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         if (titleFormatter == null) {
             label.text = if (data.keys.elementAt(i) is String) data.keys.elementAt(i).toString() else ""
         } else label.text = titleFormatter?.invoke(data.keys.elementAt(i))
-
-        item.post { itemWidth = item.width.toFloat() / partSize }
+        if (itemWidth == 0f) item.post { if (itemWidth == 0f) itemWidth = item.width.toFloat() }
         linearLayout.addView(item)
     }
 
     private fun addScrollingListener() {
         onScrollChanged = {
-            currentPosition = it
+            currentPosition = it.toFloat()
             val index = getViewIndex()
-            if (((index - displacement) >= 0) and ((index - displacement) < items.size)) {
-                if (index != oldIndex) {
+
+            if (index != oldIndex) when {
+                ((index - displacement) >= 0) and ((index - displacement) < items.size) -> {
                     oldIndex = index
-                    AsyncTask.execute { onItemChangeListener((index - displacement).toString() to items.values.elementAt(index - displacement)) }
+                    onItemChangeListener((index - displacement).toString() to items.values.elementAt(index - displacement))
                     vibrate()
                 }
+                (index - displacement) <= 0 -> animatedScroll(start, fastSpeed)
+                else -> animatedScroll(end, fastSpeed)
             }
-            if (::item.isInitialized) itemWidth = item.width.toFloat() / partSize
         }
     }
 
@@ -144,7 +147,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                     onStop()
                 }
                 if (it == MotionEvent.ACTION_UP) {
-                    post { scrollTo(currentPosition, 0) }
+                    post { scrollTo(currentPosition.toInt(), 0) }
                     snapToClosestItem()
                 }
             }
@@ -155,14 +158,14 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         linearLayout.post {
             linearLayoutWidth = linearLayout.width.toFloat()
             startGrayWidth = root.findViewById<View>(R.id.grayArea1).width
-            start = ((((startGrayWidth) - (displayWidth / 2))) + ((itemWidth) * displacement)).toInt()
-            end = (((((startGrayWidth) - (displayWidth / 2))) + linearLayoutWidth) - ((itemWidth) * ((displacement - partSize).absoluteValue))).toInt()
+            start = ((((startGrayWidth) - (displayWidth / 2))) + ((itemWidth / partSize) * displacement)).toInt()
+            end = (((((startGrayWidth) - (displayWidth / 2))) + linearLayoutWidth) - ((itemWidth / partSize) * ((displacement - partSize).absoluteValue))).toInt()
             callback()
         }
     }
 
     private fun getViewIndex(): Int {
-        val index = ((displayWidth / 2) - startGrayWidth + currentPosition) / (itemWidth)
+        val index = ((displayWidth / 2) - startGrayWidth + currentPosition) / (itemWidth / partSize)
         return index.toInt()
     }
 
@@ -250,11 +253,8 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun snap() {
-        //        ((displayWidth / 2) - startGrayWidth + currentPosition)
-
-        val x = if (partSize == 1) ((currentPosition / itemWidth).roundToInt() * itemWidth) + (itemWidth / 4)
-        else (currentPosition / itemWidth).roundToInt() * itemWidth
-        post { smoothScrollTo(x.toInt(), 0) }
+        val x = (((currentPosition + (displayWidth / 2)) / (itemWidth / partSize)).roundToInt() * (itemWidth / partSize)) - (displayWidth / 2)
+        post { smoothScrollTo(x.roundToInt(), 0) }
     }
 
     private fun animatedScroll(position: Int, speed: Float, cb: () -> Unit = {}) {
@@ -306,8 +306,8 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                 snapToClosestItem()
                 if ((currentPosition > start) and (currentPosition < end))
                     post {
-                        val x = (((currentPosition / itemWidth).roundToInt() * itemWidth))
-                        smoothScrollTo((x + itemWidth).toInt(), 0)
+                        val x = (((currentPosition / (itemWidth / partSize)).roundToInt() * (itemWidth / partSize)))
+                        smoothScrollTo((x + (itemWidth / partSize)).toInt(), 0)
                         snapToClosestItem()
                         vibrate()
                     }
@@ -324,8 +324,8 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                 snapToClosestItem()
                 if ((currentPosition > start) and (currentPosition < end))
                     post {
-                        val x = (((currentPosition / itemWidth).roundToInt() * itemWidth))
-                        smoothScrollTo((x - itemWidth).toInt(), 0)
+                        val x = (((currentPosition / (itemWidth / partSize)).roundToInt() * (itemWidth / partSize)))
+                        smoothScrollTo((x - (itemWidth / partSize)).toInt(), 0)
                         snapToClosestItem()
                         vibrate()
                     }
