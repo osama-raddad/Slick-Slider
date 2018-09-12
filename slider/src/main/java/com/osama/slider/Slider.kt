@@ -293,8 +293,11 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
             if (!scrollAnimator.isPaused and scrollAnimator.isRunning) {
                 scrollAnimator.pause()
                 snapToClosestItem()
-            } else
+                onStop()
+            } else {
                 startPlaying(speedFactor)
+                onPlay()
+            }
         }
     }
 
@@ -304,14 +307,18 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
             if (!scrollAnimator.isPaused) scrollAnimator.pause()
             post {
                 snapToClosestItem()
-                if ((currentPosition > start) and (currentPosition < end))
+                if ((currentPosition >= start) and (currentPosition <= end))
                     post {
                         val x = (((currentPosition / (itemWidth / partSize)).roundToInt() * (itemWidth / partSize)))
                         smoothScrollTo((x + (itemWidth / partSize)).toInt(), 0)
                         snapToClosestItem()
                         vibrate()
                     }
-
+                else {
+                    if (currentPosition < start) currentPosition = start.toFloat()
+                    if (currentPosition > end) currentPosition = end.toFloat()
+                    forward()
+                }
             }
         }
     }
@@ -322,13 +329,18 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
             if (!scrollAnimator.isPaused) scrollAnimator.pause()
             post {
                 snapToClosestItem()
-                if ((currentPosition > start) and (currentPosition < end))
+                if ((currentPosition >= start) and (currentPosition <= end))
                     post {
                         val x = (((currentPosition / (itemWidth / partSize)).roundToInt() * (itemWidth / partSize)))
                         smoothScrollTo((x - (itemWidth / partSize)).toInt(), 0)
                         snapToClosestItem()
                         vibrate()
                     }
+                else {
+                    if (currentPosition < start) currentPosition = start.toFloat()
+                    if (currentPosition > end) currentPosition = end.toFloat()
+                    backward()
+                }
             }
         }
     }
