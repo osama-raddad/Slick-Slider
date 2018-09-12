@@ -225,12 +225,14 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         handler.postDelayed({
             //            back to start
             post {
-                smoothScrollTo(start, 0)
-                //          delay
-                handler.postDelayed({
-                    //                repeat
-                    startPlaying(factor)
-                }, delay)
+                try {
+                    smoothScrollTo(start, 0)
+                    //          delay
+                    handler.postDelayed({
+                        //                repeat
+                        startPlaying(factor)
+                    }, delay)
+                } catch (e: Error) { }
             }
         }, delay)
     }
