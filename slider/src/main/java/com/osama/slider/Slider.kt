@@ -219,22 +219,26 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     fun replay(factor: Int = speedFactor) {
-        if (::scrollAnimator.isInitialized)
-            scrollAnimator.pause()
-        //          delay
-        handler.postDelayed({
-            //            back to start
-            post {
-                try {
-                    smoothScrollTo(start, 0)
-                    //          delay
-                    handler.postDelayed({
-                        //                repeat
-                        startPlaying(factor)
-                    }, delay)
-                } catch (e: Error) { }
-            }
-        }, delay)
+        try {
+            if (::scrollAnimator.isInitialized)
+                scrollAnimator.pause()
+            //          delay
+            handler.postDelayed({
+                //            back to start
+                post {
+                    try {
+                        smoothScrollTo(start, 0)
+                        //          delay
+                        handler.postDelayed({
+                            //                repeat
+                            startPlaying(factor)
+                        }, delay)
+                    } catch (e: Error) {
+                    }
+                }
+            }, delay)
+        } catch (e: Error) {
+        }
     }
 
     private fun snapToClosestItem() {
