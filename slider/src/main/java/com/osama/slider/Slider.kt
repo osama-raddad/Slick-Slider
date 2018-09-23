@@ -82,6 +82,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         if (isRtl) {
             scaleX = -1f
         }
+
         linearLayout = root.findViewById(R.id.ll)
         linearLayout.removeAllViews()
 
@@ -322,10 +323,6 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         }
     }
 
-    private fun dpToPx(float: Float): Float {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, float, resources.displayMetrics)
-    }
-
     fun startSliding() {
         onPlay()
         startPlaying(speedFactor)
@@ -354,20 +351,19 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         if (motionEvent != MotionEvent.ACTION_MOVE) {
             onStop()
             if (!scrollAnimator.isPaused) scrollAnimator.pause()
-            post {
-                snapToClosestItem()
-                if ((currentPosition >= start) and (currentPosition <= end))
-                    post {
-                        val x = (((currentPosition / (itemWidth / partSize)).roundToInt() * (itemWidth / partSize)))
-                        smoothScrollTo((x + (itemWidth / partSize)).toInt(), 0)
-                        snapToClosestItem()
-                        vibrate()
-                    }
-                else {
-                    if (currentPosition < start) currentPosition = start.toFloat()
-                    if (currentPosition > end) currentPosition = end.toFloat()
-                    forward()
+//            snapToClosestItem()
+            val cp = currentPosition + if (partSize == 1) (displayWidth / 2) else 0
+            if ((cp >= start) and (cp <= end)) {
+                var x = (((cp / (itemWidth / partSize)).roundToInt() * (itemWidth / partSize)))
+                if (partSize == 1) x -= (displayWidth / 2)
+                animatedScroll((x + (itemWidth / partSize)).toInt(), 500f) {
+                    if (partSize == 1) snapToClosestItem()
+                    vibrate()
                 }
+            } else {
+                if (currentPosition < start) currentPosition = start.toFloat()
+                if (currentPosition > end) currentPosition = end.toFloat()
+                forward()
             }
         }
     }
@@ -376,20 +372,19 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         if (motionEvent != MotionEvent.ACTION_MOVE) {
             onStop()
             if (!scrollAnimator.isPaused) scrollAnimator.pause()
-            post {
-                snapToClosestItem()
-                if ((currentPosition >= start) and (currentPosition <= end))
-                    post {
-                        val x = (((currentPosition / (itemWidth / partSize)).roundToInt() * (itemWidth / partSize)))
-                        smoothScrollTo((x - (itemWidth / partSize)).toInt(), 0)
-                        snapToClosestItem()
-                        vibrate()
-                    }
-                else {
-                    if (currentPosition < start) currentPosition = start.toFloat()
-                    if (currentPosition > end) currentPosition = end.toFloat()
-                    backward()
+            snapToClosestItem()
+            val cp = currentPosition + if (partSize == 1) (displayWidth / 2) else 0
+            if ((cp >= start) and (cp <= end)) {
+                var x = (((cp / (itemWidth / partSize)).roundToInt() * (itemWidth / partSize)))
+                if (partSize == 1) x -= (displayWidth / 2)
+                animatedScroll((x - (itemWidth / partSize)).toInt(), 500f) {
+                    if (partSize == 1) snapToClosestItem()
+                    vibrate()
                 }
+            } else {
+                if (currentPosition < start) currentPosition = start.toFloat()
+                if (currentPosition > end) currentPosition = end.toFloat()
+                backward()
             }
         }
     }
