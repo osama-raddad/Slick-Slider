@@ -6,6 +6,7 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.IntentSender
 import android.content.res.Resources
 import android.os.AsyncTask
 import android.os.Build
@@ -17,6 +18,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -38,7 +40,8 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private val root: View = inflater.inflate(R.layout.view_slider, this)
     private lateinit var linearLayout: LinearLayout
     private var blueAreaWidth: Float = 0f
-    private var itemWidth: Float = 0f
+    private var itemWidth: Float = dpToPx(50f)
+
     private var currentPosition = 0f
     private lateinit var scrollAnimator: ObjectAnimator
     private val playerSpeed: Float = 1600f
@@ -60,6 +63,14 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private var items: MutableMap<*, *> = mutableMapOf<Any, Any>()
 
     fun <T, K> setData(data: MutableMap<T, K>) {
+        displacement = (((data.size.toFloat() / partSize.toFloat()) - data.size / partSize) * 100).toInt()
+        displacement = when (displacement) {
+            25 -> 3
+            50 -> 2
+            75 -> 1
+            100 -> 0
+            else -> 0
+        }
         if (::scrollAnimator.isInitialized) scrollAnimator.cancel()
         overScrollMode = View.OVER_SCROLL_NEVER
         items = data
@@ -78,7 +89,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun <T, K> addItemsToLayout(data: MutableMap<T, K>) {
+    private fun <T, K> addItemsToLayout(data: MutableMap<T, K>, onFinishInflating: () -> Unit = {}) {
         if (isRtl) {
             scaleX = -1f
         }
@@ -91,7 +102,10 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                         - (data.size + displacement - 1) / partSize) > 0f)
             data.size - 1 + partSize else data.size - 1
 
-        for (i in 0 until size step partSize) createViews(i, data)
+        for (i in 0 until size step partSize)
+            if (data.keys.indices.contains(i))
+                createViews(i, data)
+        onFinishInflating()
     }
 
     private fun <T, K> createViews(i: Int, data: MutableMap<T, K>) {
@@ -107,10 +121,11 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         if (titleFormatter == null) {
             label.text = if (data.keys.elementAt(i) is String) data.keys.elementAt(i).toString() else ""
         } else {
-//            if (data.keys.indices.contains(i))
             label.text = titleFormatter?.invoke(data.keys.elementAt(i))
         }
-        if (itemWidth == 0f) item.post { if (itemWidth == 0f) itemWidth = item.width.toFloat() }
+        item.post {
+            itemWidth = item.width.toFloat()
+        }
         linearLayout.addView(item)
     }
 
@@ -122,13 +137,20 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
             if (index != oldIndex) when {
                 ((index - displacement) >= 0) and ((index - displacement) < items.size) -> {
                     oldIndex = index
-                    onItemChangeListener((index - displacement).toString() to items.values.elementAt(index - displacement))
+                    onItemChangeListener((index - displacement).toString() to
+                            (currentPosition /*+ calculateTheDistanceToTheMedalOfTheScreen()*/).toString()
+//                            items.values.elementAt(index - displacement)
+                    )
                     vibrate()
                 }
                 (index - displacement) <= 0 -> animatedScroll(start, fastSpeed)
                 else -> animatedScroll(end, fastSpeed)
             }
         }
+    }
+
+    private fun dpToPx(float: Float): Float {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, float, resources.displayMetrics)
     }
 
     private fun vibrate() {
@@ -169,7 +191,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun getDisplacementValue(complement: Boolean = false): Int {
-        return ((itemWidth / partSize) * if (complement) ((displacement - partSize).absoluteValue) else displacement).toInt()
+        return ((itemWidth / partSize) * if (!complement) ((displacement)) else (displacement - partSize).absoluteValue).toInt()
     }
 
     private fun calculateTheDistanceToTheMedalOfTheScreen(): Int {

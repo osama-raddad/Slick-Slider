@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         var data: MutableMap<String, Any> = HashMap()
         val a: MutableMap<String, Any>
-        for (i in 0 until 16) data[i.toString()] = i.toString()
+        for (i in 0 until 19) data[i.toString()] = i.toString()
         a = data.toList().sortedBy { (key, _) -> key.toInt() }.toMap() as MutableMap<String, Any>
         data = a
         sliderFrameLayout.removeAllViews()
@@ -27,7 +27,9 @@ class MainActivity : AppCompatActivity() {
         slider.onStop = { play.setImageResource(R.drawable.ic_play_circle_filled_black_24dp) }
         slider.onReady = {
             slider.startSliding()
-            slider.onItemChangeListener = { runOnUiThread { time.text = it.second as CharSequence? } }
+            slider.onItemChangeListener = {
+                runOnUiThread { time.text = it.second as CharSequence? }
+            }
 
             play.setOnClickListener { slider.pauseSliding() }
             forward.setOnClickListener { slider.forward() }
