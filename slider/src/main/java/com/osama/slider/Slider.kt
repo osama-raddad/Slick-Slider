@@ -12,6 +12,7 @@ import android.os.AsyncTask
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -100,11 +101,16 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         val size = if ((displacement > 0) &&
                 (((data.size + displacement - 1) / partSize.toFloat())
                         - (data.size + displacement - 1) / partSize) > 0f)
-            data.size - 1 + partSize else data.size - 1
+            data.size - 1 + partSize else data.size
 
-        for (i in 0 until size step partSize)
+        if (partSize > 1) for (i in 0 until size step partSize) {
             if (data.keys.indices.contains(i))
                 createViews(i, data)
+        }
+        else for (i in 0 until size) {
+            if (data.keys.indices.contains(i))
+                createViews(i, data)
+        }
         onFinishInflating()
     }
 
@@ -138,8 +144,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                 ((index - displacement) >= 0) and ((index - displacement) < items.size) -> {
                     oldIndex = index
                     onItemChangeListener((index - displacement).toString() to
-                            (currentPosition /*+ calculateTheDistanceToTheMedalOfTheScreen()*/).toString()
-//                            items.values.elementAt(index - displacement)
+                            items.values.elementAt(index - displacement)
                     )
                     vibrate()
                 }

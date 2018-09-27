@@ -13,14 +13,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         var data: MutableMap<String, Any> = HashMap()
         val a: MutableMap<String, Any>
-        for (i in 0 until 19) data[i.toString()] = i.toString()
+        for (i in 0 until 13) data[i.toString()] = i.toString()
         a = data.toList().sortedBy { (key, _) -> key.toInt() }.toMap() as MutableMap<String, Any>
         data = a
         sliderFrameLayout.removeAllViews()
         val slider = Slider(this)
         slider.isVerticalScrollBarEnabled = false
         slider.isHorizontalScrollBarEnabled = false
-        slider.partSize = 1
+        slider.partSize = 4
         slider.titleFormatter = { "$it:00" }
         slider.setData(data)
         slider.onPlay = { play.setImageResource(R.drawable.ic_pause_circle_filled_black_24dp) }
