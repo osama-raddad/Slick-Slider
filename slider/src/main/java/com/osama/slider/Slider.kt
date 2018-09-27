@@ -6,20 +6,17 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.IntentSender
 import android.content.res.Resources
 import android.os.AsyncTask
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
