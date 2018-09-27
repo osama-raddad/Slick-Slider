@@ -63,9 +63,9 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     fun <T, K> setData(data: MutableMap<T, K>) {
         displacement = (((data.size.toFloat() / partSize.toFloat()) - data.size / partSize) * 100).toInt()
         displacement = when (displacement) {
-            25 -> 3
+            25 -> 1
             50 -> 2
-            75 -> 1
+            75 -> 3
             100 -> 0
             else -> 0
         }
