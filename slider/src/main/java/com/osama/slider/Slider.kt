@@ -100,8 +100,10 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                         - (data.size + displacement - 1) / partSize) > 0f)
             data.size - 1 + partSize else data.size
 
-        if (!isRtl) for (i in 0 until size step partSize) if (data.keys.indices.contains(i)) createViews(i, data)
-        else for (i in size downTo 0 step partSize) if (data.keys.indices.contains(i)) createViews(i, data)
+        for (i in 0 until size step partSize) {
+            if (data.keys.indices.contains(i))
+                createViews(i, data)
+        }
         onFinishInflating()
     }
 
@@ -195,7 +197,8 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun getViewIndex(): Int {
-        val index = ((displayWidth / 2) - startGrayWidth + currentPosition) / (itemWidth / partSize)
+        var index = ((displayWidth / 2) - startGrayWidth + currentPosition) / (itemWidth / partSize)
+        if (isRtl) index = (index - items.size).absoluteValue
         return index.toInt()
     }
 
