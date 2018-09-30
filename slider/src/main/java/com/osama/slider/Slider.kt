@@ -132,11 +132,10 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         onScrollChanged = {
             currentPosition = it.toFloat()
             var index = getViewIndex()
-
+            if (isRtl) index = (index - items.size).absoluteValue
             if (index != oldIndex) when {
                 ((index - displacement) >= 0) and ((index - displacement) < items.size) -> {
                     oldIndex = index
-                    if (isRtl) index = (index - items.size).absoluteValue
                     onItemChangeListener((index - displacement).toString() to
                             items.values.elementAt(index - displacement)
                     )
