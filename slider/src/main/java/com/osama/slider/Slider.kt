@@ -100,14 +100,8 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                         - (data.size + displacement - 1) / partSize) > 0f)
             data.size - 1 + partSize else data.size
 
-        if (partSize > 1) for (i in 0 until size step partSize) {
-            if (data.keys.indices.contains(i))
-                createViews(i, data)
-        }
-        else for (i in 0 until size) {
-            if (data.keys.indices.contains(i))
-                createViews(i, data)
-        }
+        if (!isRtl) for (i in 0 until size step partSize) if (data.keys.indices.contains(i)) createViews(i, data)
+        else for (i in size downTo 0 step partSize) if (data.keys.indices.contains(i)) createViews(i, data)
         onFinishInflating()
     }
 
