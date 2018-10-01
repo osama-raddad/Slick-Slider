@@ -36,7 +36,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val root: View = inflater.inflate(R.layout.view_slider, this)
-    private lateinit var linearLayout: LinearLayout
+    private var linearLayout: LinearLayout? = null
     private var blueAreaWidth: Float = 0f
     private var itemWidth: Float = dpToPx(50f)
 
@@ -93,7 +93,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         }
 
         linearLayout = root.findViewById(R.id.ll)
-        linearLayout.removeAllViews()
+        linearLayout?.removeAllViews()
 
         val size = if ((displacement > 0) &&
                 (((data.size + displacement - 1) / partSize.toFloat())
@@ -125,7 +125,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         item.post {
             itemWidth = item.width.toFloat()
         }
-        linearLayout.addView(item)
+        linearLayout?.addView(item)
     }
 
     private fun addScrollingListener() {
@@ -179,8 +179,8 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun calculateTheStartAndEndOfLayout(callback: () -> Unit) {
-        linearLayout.post {
-            blueAreaWidth = linearLayout.width.toFloat()
+        linearLayout?.post {
+            blueAreaWidth = linearLayout?.width?.toFloat()!!
             startGrayWidth = root.findViewById<View>(R.id.grayArea1).width
             start = calculateTheDistanceToTheMedalOfTheScreen() + getDisplacementValue()
             end = (calculateTheDistanceToTheMedalOfTheScreen() + blueAreaWidth.toInt()) - getDisplacementValue(complement = true)
