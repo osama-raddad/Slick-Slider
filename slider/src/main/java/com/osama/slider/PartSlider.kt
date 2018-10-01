@@ -11,23 +11,25 @@ import android.os.AsyncTask
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import timber.log.Timber
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 
-class Slider(context: Context) : ObservableHorizontalScrollView(context) {
+class PartSlider(context: Context) : ObservableHorizontalScrollView(context) {
     var partSize: Int = 1
     var displacement: Int = 0
     var vibrate: Boolean = true
     var vibrationLength: Long = 15
 
-    var speedFactor: Int = 1
+    var speedFactor: Int = 2
         private set
 
     var onReady: () -> Unit = {}
@@ -38,7 +40,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private val root: View = inflater.inflate(R.layout.view_slider, this)
     private var linearLayout: LinearLayout? = null
     private var blueAreaWidth: Float = 0f
-    private var itemWidth: Float = dpToPx(50f)
+    private var itemWidth: Float = dpToPx(48f)
 
     private var currentPosition = 0f
     private lateinit var scrollAnimator: ObjectAnimator
@@ -53,12 +55,15 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private val fastSpeed: Float = 50f
     private val delay: Long = 400
     private val displayWidth = Resources.getSystem().displayMetrics.widthPixels
-    private var isRtl = false
     private var motionEvent: Int = MotionEvent.ACTION_UP
 
     var onItemChangeListener: (item: Pair<*, *>) -> Unit = { }
     var titleFormatter: ((key: Any?) -> String)? = null
     private var items: MutableMap<*, *> = mutableMapOf<Any, Any>()
+
+    init {
+        layoutDirection = View.LAYOUT_DIRECTION_LTR
+    }
 
     fun <T, K> setData(data: MutableMap<T, K>) {
         displacement = (((data.size.toFloat() / partSize.toFloat()) - data.size / partSize) * 100).toInt()
@@ -72,7 +77,6 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
         if (::scrollAnimator.isInitialized) scrollAnimator.cancel()
         overScrollMode = View.OVER_SCROLL_NEVER
         items = data
-        isRtl = resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
         addItemsToLayout(data)
         addScrollingListener()
         addMotionListener()
@@ -88,9 +92,6 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
 
     @SuppressLint("SetTextI18n")
     private fun <T, K> addItemsToLayout(data: MutableMap<T, K>, onFinishInflating: () -> Unit = {}) {
-        if (isRtl) {
-            scaleX = -1f
-        }
 
         linearLayout = root.findViewById(R.id.ll)
         linearLayout?.removeAllViews()
@@ -100,23 +101,18 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
                         - (data.size + displacement - 1) / partSize) > 0f)
             data.size - 1 + partSize else data.size
 
-        for (i in 0 until size step partSize) {
-            if (data.keys.indices.contains(i))
-                createViews(i, data)
-        }
-        onFinishInflating()
+        for (i in 0 until size step partSize) if (data.keys.indices.contains(i)) createViews(i, data)
     }
 
     private fun <T, K> createViews(i: Int, data: MutableMap<T, K>) {
+        Timber.i(i.toString())
+
         item = inflater.inflate(R.layout.view_item, linearLayout, false)
         val label = item.findViewById<TextView>(R.id.label)
-        if (isRtl) label.scaleX = -1f
         if (displacement > 0) {
             if (i == 0) applyDisplacementStart(item)
             if (data.size - i <= partSize) applyDisplacementEnd(item)
-
         }
-        if (isRtl) label.scaleX = -1f
         if (titleFormatter == null) {
             label.text = if (data.keys.elementAt(i) is String) data.keys.elementAt(i).toString() else ""
         } else {
@@ -131,8 +127,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     private fun addScrollingListener() {
         onScrollChanged = {
             currentPosition = it.toFloat()
-            var index = getViewIndex()
-            if (isRtl) index = (index - items.size).absoluteValue
+            val index = getViewIndex()
             if (index != oldIndex) when {
                 ((index - displacement) >= 0) and ((index - displacement) < items.size) -> {
                     oldIndex = index
@@ -189,7 +184,7 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun getDisplacementValue(complement: Boolean = false): Int {
-        return ((itemWidth / partSize) * if (!complement) ((displacement)) else (displacement - partSize).absoluteValue).toInt()
+        return if (displacement == 0) 0 else ((itemWidth / partSize) * if (!complement) ((displacement)) else (displacement - partSize).absoluteValue).toInt()
     }
 
     private fun calculateTheDistanceToTheMedalOfTheScreen(): Int {
@@ -202,70 +197,38 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
     }
 
     private fun applyDisplacementEnd(item: View) {
-        if (isRtl)
-            when ((displacement - partSize).absoluteValue) {
-                3 -> {
-                    setPartsColor(item.findViewById<View>(R.id.forth_quarter))
-                }
-                2 -> {
-                    setPartsColor(item.findViewById<View>(R.id.forth_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.third_quarter))
-                }
-                1 -> {
-                    setPartsColor(item.findViewById<View>(R.id.forth_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.third_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.second_quarter))
-                }
+        when ((displacement - partSize).absoluteValue) {
+            1 -> {
+                setPartsColor(item.findViewById<View>(R.id.forth_quarter))
             }
-        else
-            when ((displacement - partSize).absoluteValue) {
-                1 -> {
-                    setPartsColor(item.findViewById<View>(R.id.forth_quarter))
-                }
-                2 -> {
-                    setPartsColor(item.findViewById<View>(R.id.forth_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.third_quarter))
-                }
-                3 -> {
-                    setPartsColor(item.findViewById<View>(R.id.forth_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.third_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.second_quarter))
-                }
+            2 -> {
+                setPartsColor(item.findViewById<View>(R.id.forth_quarter))
+                setPartsColor(item.findViewById<View>(R.id.third_quarter))
             }
+            3 -> {
+                setPartsColor(item.findViewById<View>(R.id.forth_quarter))
+                setPartsColor(item.findViewById<View>(R.id.third_quarter))
+                setPartsColor(item.findViewById<View>(R.id.second_quarter))
+            }
+        }
     }
 
 
     private fun applyDisplacementStart(item: View) {
-        if (isRtl)
-            when (displacement) {
-                3 -> {
-                    setPartsColor(item.findViewById<View>(R.id.first_quarter))
-                }
-                2 -> {
-                    setPartsColor(item.findViewById<View>(R.id.first_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.second_quarter))
-                }
-                1 -> {
-                    setPartsColor(item.findViewById<View>(R.id.first_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.second_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.third_quarter))
-                }
+        when (displacement) {
+            1 -> {
+                setPartsColor(item.findViewById<View>(R.id.first_quarter))
             }
-        else
-            when (displacement) {
-                1 -> {
-                    setPartsColor(item.findViewById<View>(R.id.first_quarter))
-                }
-                2 -> {
-                    setPartsColor(item.findViewById<View>(R.id.first_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.second_quarter))
-                }
-                3 -> {
-                    setPartsColor(item.findViewById<View>(R.id.first_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.second_quarter))
-                    setPartsColor(item.findViewById<View>(R.id.third_quarter))
-                }
+            2 -> {
+                setPartsColor(item.findViewById<View>(R.id.first_quarter))
+                setPartsColor(item.findViewById<View>(R.id.second_quarter))
             }
+            3 -> {
+                setPartsColor(item.findViewById<View>(R.id.first_quarter))
+                setPartsColor(item.findViewById<View>(R.id.second_quarter))
+                setPartsColor(item.findViewById<View>(R.id.third_quarter))
+            }
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -277,10 +240,13 @@ class Slider(context: Context) : ObservableHorizontalScrollView(context) {
 
     private fun startPlaying(factor: Int) {
 //        scroll to the end
-        animatedScroll(end, Math.abs((playerSpeed * (partsCount / partSize)) * (currentPosition - end) / (end - start)) / factor) {
+        animatedScroll(end, calculateSpeed(factor)) {
             replay(factor)
         }
     }
+
+    private fun calculateSpeed(factor: Int): Float =
+            Math.abs((playerSpeed * (partsCount / partSize)) * (currentPosition - end) / (end - start)) / factor
 
     fun replay(factor: Int = speedFactor) {
         try {
