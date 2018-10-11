@@ -24,7 +24,7 @@ import kotlin.math.roundToInt
 
 
 class PartSlider(context: Context) : ObservableHorizontalScrollView(context) {
-    var partSize: Int = 1
+    var partSize: Int = 4
     var displacement: Int = 0
     var vibrate: Boolean = true
     var vibrationLength: Long = 15
@@ -253,20 +253,22 @@ class PartSlider(context: Context) : ObservableHorizontalScrollView(context) {
             if (::scrollAnimator.isInitialized)
                 scrollAnimator.pause()
             //          delay
-            handler.postDelayed({
-                //            back to start
-                post {
-                    try {
-                        smoothScrollTo(start, 0)
-                        //          delay
-                        handler.postDelayed({
-                            //                repeat
-                            startPlaying(factor)
-                        }, delay)
-                    } catch (e: Error) {
+            if (handler != null)
+                handler.postDelayed({
+                    //            back to start
+                    post {
+                        try {
+                            smoothScrollTo(start, 0)
+                            //          delay
+                            if (handler != null)
+                                handler.postDelayed({
+                                    //                repeat
+                                    startPlaying(factor)
+                                }, delay)
+                        } catch (e: Error) {
+                        }
                     }
-                }
-            }, delay)
+                }, delay)
         } catch (e: Error) {
         }
     }
