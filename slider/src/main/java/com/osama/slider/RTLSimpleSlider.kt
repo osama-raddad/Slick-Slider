@@ -112,7 +112,7 @@ class RTLSimpleSlider(context: Context) : ObservableHorizontalScrollView(context
         onScrollChanged = {
             currentPosition = it.toFloat()
             var index = getViewIndex()
-            index = (index - items.size).absoluteValue - 1
+            index = (index - items.size).absoluteValue
             if (index != oldIndex) when {
                 ((index) >= 0) and ((index) < items.size) -> {
                     oldIndex = index
@@ -175,7 +175,7 @@ class RTLSimpleSlider(context: Context) : ObservableHorizontalScrollView(context
     }
 
     private fun getViewIndex(): Int {
-        val index = ((displayWidth - 80 / 2) - startGrayWidth + currentPosition) / (itemWidth)
+        val index = ((displayWidth / 2) - startGrayWidth + currentPosition) / (itemWidth)
         return index.toInt()
     }
 
