@@ -175,7 +175,7 @@ class RTLSimpleSlider(context: Context) : ObservableHorizontalScrollView(context
     }
 
     private fun getViewIndex(): Int {
-        val index = ((displayWidth / 2) - startGrayWidth + currentPosition + 6) / (itemWidth)
+        val index = ((displayWidth / 2) - startGrayWidth + currentPosition) / (itemWidth)
         return index.toInt()
     }
 
@@ -230,7 +230,7 @@ class RTLSimpleSlider(context: Context) : ObservableHorizontalScrollView(context
 
     private fun snap() {
         val x = (((currentPosition + (displayWidth / 2)) / (itemWidth)).roundToInt() * (itemWidth)) - (displayWidth / 2)
-        post { smoothScrollTo(x.roundToInt(), 0) }
+        post { smoothScrollTo(x.roundToInt()+3, 0) }
     }
 
     private fun animatedScroll(position: Int, speed: Float, cb: () -> Unit = {}) {
