@@ -175,7 +175,7 @@ class RTLSimpleSlider(context: Context) : ObservableHorizontalScrollView(context
     }
 
     private fun getViewIndex(): Int {
-        val index = ((displayWidth / 2) - startGrayWidth + currentPosition) / (itemWidth)
+        val index = ((displayWidth / 2) - startGrayWidth + currentPosition + 6) / (itemWidth)
         return index.toInt()
     }
 

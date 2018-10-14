@@ -173,7 +173,7 @@ class SimpleSlider(context: Context) : ObservableHorizontalScrollView(context) {
         return (((startGrayWidth) - (displayWidth / 2)))
     }
 
-    private fun getViewIndex(): Int = (((displayWidth / 2) - startGrayWidth + currentPosition + 6) / (itemWidth)).toInt()
+    private fun getViewIndex(): Int = (((displayWidth / 2) - startGrayWidth + currentPosition ) / (itemWidth)).toInt()
 
     private fun startPlaying(factor: Int) {
 //        scroll to the end
